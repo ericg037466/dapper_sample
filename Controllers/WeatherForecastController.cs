@@ -9,11 +9,6 @@ namespace dapper_test.Controllers
     [Route("[controller]")]
     public class WeatherForecastController : ControllerBase
     {
-        private static readonly string[] Summaries = new[]
-        {
-        "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-    };
-
         private readonly ILogger<WeatherForecastController> logger;
         private readonly UserInfoRead read;
         private readonly UserInfoMaintain maintain;
@@ -40,9 +35,12 @@ namespace dapper_test.Controllers
         public IActionResult Post([FromBody] UserInfo user)
         {
             var sql = "INSERT INTO user_info (name, nickname) values(@name, @nickname)";
-            var result = maintain.Create(true, sql, user);
 
-            return Ok(result);
+            var result1 = maintain.BeginTrans().Create(sql, user);
+
+            var result2 = maintain.Create(sql, user).Commit().GetData();
+
+            return Ok(result2);
         }
 
         public class UserInfo

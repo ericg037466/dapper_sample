@@ -1,4 +1,5 @@
 using dapper_test.Services;
+using MySql.Data.MySqlClient;
 
 var builder = WebApplication.CreateBuilder(args);
 

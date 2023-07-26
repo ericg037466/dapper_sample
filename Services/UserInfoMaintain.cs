@@ -8,20 +8,38 @@ namespace dapper_test.Services
     {
         private readonly IDbService db;
         private MySqlTransaction trans;
+        private int id;
         public UserInfoMaintain(IDbService db)
         {
             this.db = db;
         }
 
-        public bool Create<T>(bool isBeginTrans, string sql, T obj)
+        public UserInfoMaintain BeginTrans()
         {
-            if (isBeginTrans) trans = db.BeginTrans();
+            trans = db.BeginTrans();
 
+            return this;
+        }
+
+        public UserInfoMaintain Commit()
+        {
+            if (db.Connect().State != System.Data.ConnectionState.Closed) trans.Commit();
+
+            return this;
+        }
+
+        public UserInfoMaintain Create<T>(string sql, T obj)
+        {
             var result = db.Connect().Execute(sql, obj);
 
-            if (isBeginTrans) trans.Commit();
+            id = result;
 
-            return result > 0;
+            return this;
+        }
+
+        public int GetData()
+        {
+            return id;
         }
     }
 }
